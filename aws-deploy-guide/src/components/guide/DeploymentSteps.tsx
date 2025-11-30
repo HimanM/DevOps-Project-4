@@ -9,7 +9,9 @@ import {
   Globe,
   AlertTriangle,
   CheckCircle2,
-  ChevronRight
+  ExternalLink,
+  Box,
+  Server
 } from "lucide-react";
 import { FaAws, FaGithub, FaDocker } from "react-icons/fa";
 import { SiAmazon } from "react-icons/si";
@@ -57,16 +59,28 @@ const steps = [
         )
       },
       {
-        title: "2. Configure AWS CLI",
+        title: "2. Install & Configure AWS CLI",
         content: (
           <div className="space-y-6">
-            <p className="text-gray-300">Authenticate your local terminal with AWS.</p>
+            <div className="bg-blue-900/20 border border-blue-500/20 p-4 rounded-lg space-y-2">
+              <p className="text-gray-300">First, install the AWS CLI for your OS:</p>
+              <div className="flex gap-4 text-sm">
+                <a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline flex items-center gap-1">Windows <ExternalLink className="w-3 h-3" /></a>
+                <a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline flex items-center gap-1">macOS <ExternalLink className="w-3 h-3" /></a>
+                <a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline flex items-center gap-1">Linux <ExternalLink className="w-3 h-3" /></a>
+              </div>
+            </div>
+
             <div className="bg-[#0D1117] p-6 rounded-xl border border-gray-800 font-mono text-sm shadow-2xl relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-2 opacity-50 group-hover:opacity-100 transition-opacity">
                 <Terminal className="w-5 h-5 text-gray-600" />
               </div>
+              <p className="text-gray-500 mb-2"># Verify installation</p>
+              <p className="text-green-400 mb-4">$ aws --version</p>
+
+              <p className="text-gray-500 mb-2"># Configure credentials</p>
               <p className="text-green-400 mb-2">$ aws configure</p>
-              <div className="space-y-1 text-gray-500">
+              <div className="space-y-1 text-gray-500 pl-4 border-l-2 border-gray-800">
                 <p>AWS Access Key ID [None]: <span className="text-blue-400">AKIA...</span></p>
                 <p>AWS Secret Access Key [None]: <span className="text-blue-400">wJalr...</span></p>
                 <p>Default region name [None]: <span className="text-yellow-400">us-west-2</span></p>
@@ -267,14 +281,28 @@ const steps = [
         title: "9. Configure Secrets",
         content: (
           <div className="space-y-6">
-            <p className="text-gray-300">Add your AWS credentials to GitHub Repository Secrets.</p>
-            <div className="flex flex-col md:flex-row gap-8 items-center">
-              <div className="flex-1 space-y-4 text-sm text-gray-400 bg-white/5 p-6 rounded-xl border border-white/10 w-full">
-                <div className="flex items-center gap-3"><Key className="w-5 h-5 text-yellow-400" /> AWS_ACCESS_KEY_ID</div>
-                <div className="flex items-center gap-3"><Lock className="w-5 h-5 text-yellow-400" /> AWS_SECRET_ACCESS_KEY</div>
-                <div className="flex items-center gap-3"><Globe className="w-5 h-5 text-blue-400" /> AWS_REGION</div>
+            <p className="text-gray-300">Add these secrets to your GitHub Repository (Settings &gt; Secrets and variables &gt; Actions).</p>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h4 className="text-sm font-semibold text-white border-b border-white/10 pb-2">AWS Credentials</h4>
+                <div className="bg-white/5 p-4 rounded-xl border border-white/10 space-y-3">
+                  <div className="flex items-center gap-3 text-sm text-gray-300"><Key className="w-4 h-4 text-yellow-500" /> <span className="font-mono text-white">AWS_ACCESS_KEY_ID</span></div>
+                  <div className="flex items-center gap-3 text-sm text-gray-300"><Lock className="w-4 h-4 text-yellow-500" /> <span className="font-mono text-white">AWS_SECRET_ACCESS_KEY</span></div>
+                  <div className="flex items-center gap-3 text-sm text-gray-300"><Globe className="w-4 h-4 text-blue-500" /> <span className="font-mono text-white">AWS_REGION</span></div>
+                </div>
+
+                <h4 className="text-sm font-semibold text-white border-b border-white/10 pb-2 pt-2">ECS Configuration</h4>
+                <div className="bg-white/5 p-4 rounded-xl border border-white/10 space-y-3">
+                  <div className="flex items-center gap-3 text-sm text-gray-300"><Box className="w-4 h-4 text-purple-500" /> <span className="font-mono text-white">ECR_REPOSITORY</span></div>
+                  <div className="flex items-center gap-3 text-sm text-gray-300"><Server className="w-4 h-4 text-orange-500" /> <span className="font-mono text-white">ECS_CLUSTER</span></div>
+                  <div className="flex items-center gap-3 text-sm text-gray-300"><Server className="w-4 h-4 text-orange-500" /> <span className="font-mono text-white">ECS_SERVICE</span></div>
+                  <div className="flex items-center gap-3 text-sm text-gray-300"><Box className="w-4 h-4 text-purple-500" /> <span className="font-mono text-white">ECS_TASK_DEFINITION</span></div>
+                  <div className="flex items-center gap-3 text-sm text-gray-300"><Box className="w-4 h-4 text-purple-500" /> <span className="font-mono text-white">CONTAINER_NAME</span></div>
+                </div>
               </div>
-              <div className="flex-1 relative group cursor-pointer w-full overflow-hidden rounded-xl border border-white/10">
+
+              <div className="relative group cursor-pointer w-full overflow-hidden rounded-xl border border-white/10 h-fit">
                 <img src="/github_secrets.png" alt="GitHub Secrets" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
                   <span className="text-white font-semibold border border-white/30 px-4 py-2 rounded-full backdrop-blur-md">View Secrets</span>
@@ -309,42 +337,60 @@ export default function DeploymentSteps() {
   const activeSection = steps.find(s => s.id === activeTab);
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-4 md:p-8">
-      <div className="flex flex-col lg:flex-row gap-8">
+    <div className="w-full max-w-7xl mx-auto p-2 md:p-8">
+      <div className="flex flex-col lg:flex-row gap-4 md:gap-8">
 
         {/* Sidebar Navigation */}
-        <div className="lg:w-1/3 space-y-4">
-          <div className="sticky top-8 space-y-4">
+        <div className="lg:w-1/3">
+          <div className="grid grid-cols-4 lg:flex lg:flex-col gap-2 pb-4 lg:pb-0 sticky top-0 lg:top-8 z-20 bg-[#0A0A0A]/95 backdrop-blur-md lg:bg-transparent p-2 lg:p-0 border-b border-white/10 lg:border-none">
             {steps.map((section) => (
               <button
                 key={section.id}
                 onClick={() => setActiveTab(section.id)}
                 className={cn(
-                  "w-full flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 text-left group relative overflow-hidden",
+                  "flex flex-col lg:flex-row items-center justify-center lg:justify-start gap-2 lg:gap-3 p-2 lg:p-3 rounded-xl border transition-all duration-300 group relative overflow-hidden h-full",
                   activeTab === section.id
                     ? "bg-white/10 border-white/20 shadow-[0_0_20px_rgba(255,255,255,0.05)]"
-                    : "bg-black/20 border-white/5 hover:bg-white/5 hover:border-white/10"
+                    : "bg-transparent lg:bg-black/20 border-transparent lg:border-white/5 hover:bg-white/5 hover:border-white/10"
                 )}
               >
                 <div className={cn(
-                  "p-3 rounded-lg transition-colors",
-                  activeTab === section.id ? "bg-white/10" : "bg-black/40"
+                  "p-1.5 lg:p-2 rounded-lg transition-colors",
+                  activeTab === section.id ? "bg-white/10" : "bg-white/5 lg:bg-black/40"
                 )}>
-                  <section.icon className={cn("w-6 h-6", section.color)} />
+                  <section.icon className={cn("w-4 h-4 lg:w-6 lg:h-6", section.color)} />
                 </div>
-                <div>
+
+                <div className="hidden md:block text-left">
                   <h3 className={cn(
-                    "font-bold transition-colors",
+                    "font-bold transition-colors text-sm md:text-base",
                     activeTab === section.id ? "text-white" : "text-gray-400 group-hover:text-gray-200"
                   )}>
                     {section.title}
                   </h3>
-                  <p className="text-xs text-gray-500">{section.description}</p>
+                  <p className="text-xs text-gray-500 hidden lg:block">{section.description}</p>
                 </div>
+
+                {/* Mobile Title - Very Short */}
+                <span className={cn(
+                  "md:hidden text-[10px] font-medium truncate w-full text-center",
+                  activeTab === section.id ? "text-white" : "text-gray-400"
+                )}>
+                  {section.id === 'github-cicd' ? 'GitHub' : section.title.split(" ")[0]}
+                </span>
+
                 {activeTab === section.id && (
                   <motion.div
                     layoutId="active-pill"
-                    className="absolute right-4 w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"
+                    className="absolute inset-0 border-2 border-blue-500/50 rounded-xl lg:hidden"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
+
+                {activeTab === section.id && (
+                  <motion.div
+                    layoutId="active-pill-desktop"
+                    className="absolute right-4 w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)] hidden lg:block"
                   />
                 )}
               </button>
@@ -361,25 +407,25 @@ export default function DeploymentSteps() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
-              className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-sm min-h-[600px]"
+              className="bg-gradient-to-br from-white/5 to-white/0 border border-white/10 rounded-2xl p-4 md:p-8 backdrop-blur-sm min-h-[400px] md:min-h-[600px]"
             >
-              <div className="mb-8 pb-8 border-b border-white/10">
-                <h2 className="text-3xl font-bold text-white flex items-center gap-3">
-                  {activeSection?.icon && <activeSection.icon className={cn("w-8 h-8", activeSection.color)} />}
+              <div className="mb-6 md:mb-8 pb-6 md:pb-8 border-b border-white/10">
+                <h2 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
+                  {activeSection?.icon && <activeSection.icon className={cn("w-6 h-6 md:w-8 md:h-8", activeSection.color)} />}
                   {activeSection?.title}
                 </h2>
-                <p className="text-gray-400 mt-2 text-lg">{activeSection?.description}</p>
+                <p className="text-gray-400 mt-2 text-sm md:text-lg">{activeSection?.description}</p>
               </div>
 
-              <div className="space-y-12">
+              <div className="space-y-8 md:space-y-12">
                 {activeSection?.items.map((item, idx) => (
                   <div key={idx} className="space-y-4">
-                    <h3 className="text-xl font-semibold text-blue-300 flex items-center gap-2">
+                    <h3 className="text-lg md:text-xl font-semibold text-blue-300 flex items-center gap-2">
                       <CheckCircle2 className="w-5 h-5 text-blue-500" />
                       {item.title}
                     </h3>
                     <div
-                      className="pl-0 md:pl-7 text-gray-300"
+                      className="pl-0 md:pl-7 text-gray-300 text-sm md:text-base"
                       onClick={(e) => {
                         const group = (e.target as HTMLElement).closest('.group');
                         if (group) {

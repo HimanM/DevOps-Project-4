@@ -7,9 +7,11 @@ import { ArrowRight } from "lucide-react";
 
 export default function WorkflowAnimation() {
   return (
-    <div className="w-full py-12 px-4">
+    <div className="w-full py-6 md:py-12 px-4">
       <div className="max-w-4xl mx-auto">
-        <div className="relative flex flex-col md:flex-row items-center md:items-start justify-between gap-8 md:gap-4">
+
+        {/* Desktop View */}
+        <div className="hidden md:flex relative flex-col md:flex-row items-center md:items-start justify-between gap-8 md:gap-4">
 
           {/* Connecting Line (Desktop) */}
           <div className="absolute top-10 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent -translate-y-1/2 hidden md:block z-0" />
@@ -57,6 +59,34 @@ export default function WorkflowAnimation() {
           />
 
         </div>
+
+        {/* Mobile View - Vertical List */}
+        <div className="md:hidden space-y-4">
+          {[
+            { icon: FaGithub, label: "Source Code", sub: "GitHub Push", color: "text-white", bg: "bg-gray-900" },
+            { icon: FaDocker, label: "Build", sub: "Docker Image", color: "text-[#2496ED]", bg: "bg-blue-900/20" },
+            { icon: FaAws, label: "Registry", sub: "Amazon ECR", color: "text-[#FF9900]", bg: "bg-orange-900/20" },
+            { icon: SiAmazon, label: "Deploy", sub: "ECS Fargate", color: "text-[#FF9900]", bg: "bg-orange-900/20" }
+          ].map((item, i) => (
+            <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+              <div className={`p-3 rounded-lg ${item.bg}`}>
+                <item.icon className={`w-6 h-6 ${item.color}`} />
+              </div>
+              <div>
+                <h3 className="text-white font-bold">{item.label}</h3>
+                <p className="text-gray-400 text-sm">{item.sub}</p>
+              </div>
+              {i < 3 && (
+                <div className="ml-auto flex flex-col items-center gap-1 opacity-30">
+                  <div className="w-1 h-1 rounded-full bg-blue-500" />
+                  <div className="w-1 h-1 rounded-full bg-blue-500" />
+                  <div className="w-1 h-1 rounded-full bg-blue-500" />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
       </div>
     </div>
   );
