@@ -1,371 +1,458 @@
 "use client";
 
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { motion } from "framer-motion";
+  Terminal,
+  Key,
+  Lock,
+  Globe,
+  AlertTriangle,
+  CheckCircle2,
+  ExternalLink,
+  Box,
+  Server
+} from "lucide-react";
+import { FaAws, FaGithub, FaDocker } from "react-icons/fa";
+import { SiAmazon } from "react-icons/si";
+import { ImageModal } from "@/components/ui/ImageModal";
+import { cn } from "@/lib/utils";
 
 const steps = [
   {
-    id: "step-1",
-    title: "1. Prerequisites",
-    content: (
-      <div className="space-y-4">
-        <p>Before you begin, ensure you have the following:</p>
-        <ul className="list-disc pl-6 space-y-2">
-          <li>An active AWS Account.</li>
-          <li>Docker installed and running.</li>
-          <li>A Next.js application ready to be containerized.</li>
-        </ul>
-      </div>
-    ),
+    id: "aws-setup",
+    title: "AWS Configuration",
+    icon: FaAws,
+    color: "text-[#FF9900]",
+    description: "Prepare your AWS environment",
+    items: [
+      {
+        title: "1. Create AWS Access Keys",
+        content: (
+          <div className="space-y-6">
+            <div className="bg-blue-900/20 border border-blue-500/20 p-4 rounded-lg">
+              <p className="text-gray-300">Generate credentials to allow the CLI to interact with your AWS account.</p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-4 text-sm text-gray-400">
+                <div className="flex gap-3">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold">1</span>
+                  <p>Go to AWS Console &gt; Security Credentials.</p>
+                </div>
+                <div className="flex gap-3">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold">2</span>
+                  <p>Create new Access Key.</p>
+                </div>
+                <div className="flex gap-3">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-red-500/20 text-red-400 text-xs font-bold">3</span>
+                  <p><span className="text-red-400 font-bold">Save the Secret Key!</span> You won&apos;t see it again.</p>
+                </div>
+              </div>
+              <div className="relative group cursor-pointer overflow-hidden rounded-xl border border-white/10">
+                <img src="/access_keys_created.png" alt="AWS Access Keys" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+                  <span className="text-white font-semibold border border-white/30 px-4 py-2 rounded-full backdrop-blur-md">Enlarge Image</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      },
+      {
+        title: "2. Install & Configure AWS CLI",
+        content: (
+          <div className="space-y-6">
+            <div className="bg-blue-900/20 border border-blue-500/20 p-4 rounded-lg space-y-2">
+              <p className="text-gray-300">First, install the AWS CLI for your OS:</p>
+              <div className="flex gap-4 text-sm">
+                <a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline flex items-center gap-1">Windows <ExternalLink className="w-3 h-3" /></a>
+                <a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline flex items-center gap-1">macOS <ExternalLink className="w-3 h-3" /></a>
+                <a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline flex items-center gap-1">Linux <ExternalLink className="w-3 h-3" /></a>
+              </div>
+            </div>
+
+            <div className="bg-[#0D1117] p-6 rounded-xl border border-gray-800 font-mono text-sm shadow-2xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-2 opacity-50 group-hover:opacity-100 transition-opacity">
+                <Terminal className="w-5 h-5 text-gray-600" />
+              </div>
+              <p className="text-gray-500 mb-2"># Verify installation</p>
+              <p className="text-green-400 mb-4">$ aws --version</p>
+
+              <p className="text-gray-500 mb-2"># Configure credentials</p>
+              <p className="text-green-400 mb-2">$ aws configure</p>
+              <div className="space-y-1 text-gray-500 pl-4 border-l-2 border-gray-800">
+                <p>AWS Access Key ID [None]: <span className="text-blue-400">AKIA...</span></p>
+                <p>AWS Secret Access Key [None]: <span className="text-blue-400">wJalr...</span></p>
+                <p>Default region name [None]: <span className="text-yellow-400">us-west-2</span></p>
+                <p>Default output format [None]: <span className="text-yellow-400">json</span></p>
+              </div>
+            </div>
+          </div>
+        )
+      },
+      {
+        title: "3. Create ECR Repository",
+        content: (
+          <div className="space-y-6">
+            <p className="text-gray-300">Create a secure place to store your Docker images.</p>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <div className="bg-[#0D1117] p-4 rounded-xl border border-gray-800 font-mono text-xs text-blue-300 leading-relaxed">
+                  aws ecr create-repository \<br />
+                  &nbsp;&nbsp;--repository-name aws-deploy-guide
+                </div>
+              </div>
+              <div className="relative group cursor-pointer overflow-hidden rounded-xl border border-white/10">
+                <img src="/repo_list.png" alt="ECR Repo" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+                  <span className="text-white font-semibold border border-white/30 px-4 py-2 rounded-full backdrop-blur-md">Enlarge Image</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      }
+    ]
   },
   {
-    id: "step-2",
-    title: "2. Install AWS CLI",
-    content: (
-      <div className="space-y-4">
-        <p>Install the AWS Command Line Interface (CLI) to interact with AWS services from your terminal.</p>
-        <div className="space-y-2">
-          <p className="font-semibold">Windows:</p>
-          <pre className="bg-muted p-4 rounded-md overflow-x-auto">
-            <code>msiexec.exe /i https://awscli.amazonaws.com/AWSCLIV2.msi</code>
-          </pre>
-          <p className="font-semibold">macOS:</p>
-          <pre className="bg-muted p-4 rounded-md overflow-x-auto">
-            <code>curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"
-              sudo installer -pkg AWSCLIV2.pkg -target /</code>
-          </pre>
-          <p className="font-semibold">Linux:</p>
-          <pre className="bg-muted p-4 rounded-md overflow-x-auto">
-            <code>curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-              unzip awscliv2.zip
-              sudo ./aws/install</code>
-          </pre>
-        </div>
-        <p>Verify installation:</p>
-        <pre className="bg-muted p-4 rounded-md overflow-x-auto">
-          <code>aws --version</code>
-        </pre>
-      </div>
-    ),
+    id: "docker-push",
+    title: "Build & Push",
+    icon: FaDocker,
+    color: "text-[#2496ED]",
+    description: "Containerize & Upload",
+    items: [
+      {
+        title: "4. Build & Push Image",
+        content: (
+          <div className="space-y-8">
+            <div className="bg-[#0D1117] p-6 rounded-xl border border-purple-500/20 shadow-[0_0_30px_rgba(168,85,247,0.05)] font-mono text-sm space-y-4">
+              <div>
+                <p className="text-gray-500 mb-1"># 1. Login to ECR</p>
+                <p className="text-purple-300">aws ecr get-login-password ... | docker login ...</p>
+              </div>
+              <div>
+                <p className="text-gray-500 mb-1"># 2. Build Image</p>
+                <p className="text-purple-300">docker build -t aws-deploy-guide .</p>
+              </div>
+              <div>
+                <p className="text-gray-500 mb-1"># 3. Tag & Push</p>
+                <p className="text-purple-300">docker push ...amazonaws.com/aws-deploy-guide:latest</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="relative group cursor-pointer overflow-hidden rounded-xl border border-white/10 aspect-video">
+                <img src="/push_commands.png" alt="Push Commands" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+                  <span className="text-white font-semibold border border-white/30 px-4 py-2 rounded-full backdrop-blur-md">View Commands</span>
+                </div>
+              </div>
+              <div className="relative group cursor-pointer overflow-hidden rounded-xl border border-white/10 aspect-video">
+                <img src="/ecr_repo_with_image.png" alt="ECR Image" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+                  <span className="text-white font-semibold border border-white/30 px-4 py-2 rounded-full backdrop-blur-md">View Repo</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      }
+    ]
   },
   {
-    id: "step-3",
-    title: "3. Create AWS Access Keys",
-    content: (
-      <div className="space-y-4">
-        <p>To use the AWS CLI, you need to create access keys for your user.</p>
-        <ol className="list-decimal pl-6 space-y-2">
-          <li>Log in to the AWS Management Console.</li>
-          <li>Click on your username in the top right corner and select <strong>Security credentials</strong>.</li>
-          <li>Scroll down to the <strong>Access keys</strong> section.</li>
-          <li>Click <strong>Create access key</strong>.</li>
-          <li>Select <strong>Command Line Interface (CLI)</strong> as the use case.</li>
-          <li>Check the confirmation box and click <strong>Next</strong>.</li>
-          <li>Click <strong>Create access key</strong>.</li>
-          <li><strong>IMPORTANT:</strong> Copy the <strong>Access key ID</strong> and <strong>Secret access key</strong> immediately. You will not be able to see the secret key again.</li>
-        </ol>
-        <div className="mt-4">
-          <img
-            src="/access_keys_created.png"
-            alt="AWS Access Keys Creation"
-            className="rounded-md border shadow-sm w-full"
-          />
-        </div>
-      </div>
-    ),
+    id: "ecs-deploy",
+    title: "ECS Deployment",
+    icon: SiAmazon,
+    color: "text-[#FF9900]",
+    description: "Launch on Fargate",
+    items: [
+      {
+        title: "5. Create Cluster",
+        content: (
+          <div className="space-y-6">
+            <p className="text-gray-300">Create a Fargate cluster to host your services.</p>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="relative group cursor-pointer overflow-hidden rounded-xl border border-orange-500/20">
+                <img src="/ecs_cluster_creation_form.png" alt="Cluster Form" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+                  <span className="text-white font-semibold border border-white/30 px-4 py-2 rounded-full backdrop-blur-md">Cluster Form</span>
+                </div>
+              </div>
+              <div className="relative group cursor-pointer overflow-hidden rounded-xl border border-orange-500/20">
+                <img src="/ecs_cluster_created.png" alt="Cluster Created" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+                  <span className="text-white font-semibold border border-white/30 px-4 py-2 rounded-full backdrop-blur-md">Cluster Created</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      },
+      {
+        title: "6. Create Task Definition",
+        content: (
+          <div className="space-y-6">
+            <p className="text-gray-300">Define your container specs (CPU, Memory, Image).</p>
+            <div className="grid md:grid-cols-3 gap-4">
+              {['new_task_definition_form_1.png', 'new_task_definition_form_2.png', 'task_definition_creation_success.png'].map((img, i) => (
+                <div key={i} className="relative group cursor-pointer overflow-hidden rounded-xl border border-orange-500/20 aspect-[4/3]">
+                  <img src={`/${img}`} alt="Task Def" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+                    <span className="text-white text-xs font-semibold border border-white/30 px-3 py-1 rounded-full backdrop-blur-md">View Step {i + 1}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      },
+      {
+        title: "7. Create Service",
+        content: (
+          <div className="space-y-6">
+            <p className="text-gray-300">Run your task definition as a service.</p>
+            <div className="grid md:grid-cols-3 gap-4">
+              {['create_service_form_1.png', 'create_service_form_4_networking.png', 'service_creation_success.png'].map((img, i) => (
+                <div key={i} className="relative group cursor-pointer overflow-hidden rounded-xl border border-orange-500/20 aspect-[4/3]">
+                  <img src={`/${img}`} alt="Service" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+                    <span className="text-white text-xs font-semibold border border-white/30 px-3 py-1 rounded-full backdrop-blur-md">View Step {i + 1}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      },
+      {
+        title: "8. Access Application",
+        content: (
+          <div className="space-y-8">
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <p className="text-green-400 font-semibold">Live Application</p>
+                <div className="relative group cursor-pointer overflow-hidden rounded-xl border border-green-500/30 shadow-[0_0_30px_rgba(34,197,94,0.1)]">
+                  <img src="/access_application.png" alt="App Live" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+                    <span className="text-white font-semibold border border-white/30 px-4 py-2 rounded-full backdrop-blur-md">View Live</span>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-green-400 font-semibold">Deployment Success</p>
+                <div className="relative group cursor-pointer overflow-hidden rounded-xl border border-green-500/30 shadow-[0_0_30px_rgba(34,197,94,0.1)]">
+                  <img src="/deployed_application.png" alt="Deployed App" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+                    <span className="text-white font-semibold border border-white/30 px-4 py-2 rounded-full backdrop-blur-md">View Dashboard</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 bg-yellow-500/5 border border-yellow-500/20 rounded-xl flex gap-4 items-start">
+              <div className="p-2 bg-yellow-500/10 rounded-lg">
+                <AlertTriangle className="w-6 h-6 text-yellow-500" />
+              </div>
+              <div className="text-sm text-yellow-200/80 space-y-2">
+                <p className="font-bold text-yellow-100 text-base">Important Note on CI/CD & Static IPs</p>
+                <p>
+                  When using automated deployments (CI/CD), ECS Fargate creates a <strong>new task</strong> with a <strong>new Public IP</strong> for every deployment.
+                  The old IP will stop working.
+                </p>
+                <p>
+                  To maintain a consistent entry point (like <code>myapp.com</code>), it is highly recommended to use an <strong>Application Load Balancer (ALB)</strong>.
+                  An ALB provides a static DNS name that automatically routes traffic to your dynamic container IPs.
+                </p>
+              </div>
+            </div>
+          </div>
+        )
+      }
+    ]
   },
   {
-    id: "step-4",
-    title: "4. Login to AWS & Configure CLI",
-    content: (
-      <div className="space-y-4">
-        <p>Open your terminal and configure your AWS credentials using the keys you just created:</p>
-        <pre className="bg-muted p-4 rounded-md overflow-x-auto">
-          <code>aws configure</code>
-        </pre>
-        <p>Enter the following when prompted:</p>
-        <ul className="list-disc pl-6 space-y-2">
-          <li><strong>AWS Access Key ID:</strong> Paste your Access Key ID.</li>
-          <li><strong>AWS Secret Access Key:</strong> Paste your Secret Access Key.</li>
-          <li><strong>Default region name:</strong> Enter your preferred region (e.g., <code>us-east-1</code>).</li>
-          <li><strong>Default output format:</strong> Enter <code>json</code>.</li>
-        </ul>
-      </div>
-    ),
-  },
-  {
-    id: "step-5",
-    title: "5. Create ECR Repository",
-    content: (
-      <div className="space-y-4">
-        <p>Create a repository in Elastic Container Registry (ECR) to store your Docker images.</p>
-        <p>Go to the AWS Console &gt; ECR &gt; Create repository.</p>
-        <p>Or use the CLI:</p>
-        <pre className="bg-muted p-4 rounded-md overflow-x-auto">
-          <code>aws ecr create-repository --repository-name my-nextjs-app</code>
-        </pre>
-        <div className="mt-4">
-          <img
-            src="/repo_list.png"
-            alt="ECR Repository List"
-            className="rounded-md border shadow-sm w-full"
-          />
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: "step-6",
-    title: "6. Build and Push Docker Image",
-    content: (
-      <div className="space-y-4">
-        <p>Authenticate Docker to your ECR registry:</p>
-        <pre className="bg-muted p-4 rounded-md overflow-x-auto">
-          <code>aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin &lt;your-account-id&gt;.dkr.ecr.us-east-1.amazonaws.com</code>
-        </pre>
-        <div className="mt-2">
-          <img
-            src="/push_commands.png"
-            alt="ECR Push Commands"
-            className="rounded-md border shadow-sm w-full"
-          />
-        </div>
-        <p>Build your Docker image:</p>
-        <pre className="bg-muted p-4 rounded-md overflow-x-auto">
-          <code>docker build -t my-nextjs-app .</code>
-        </pre>
-        <p>Tag the image:</p>
-        <pre className="bg-muted p-4 rounded-md overflow-x-auto">
-          <code>docker tag my-nextjs-app:latest &lt;your-account-id&gt;.dkr.ecr.us-east-1.amazonaws.com/my-nextjs-app:latest</code>
-        </pre>
-        <p>Push the image:</p>
-        <pre className="bg-muted p-4 rounded-md overflow-x-auto">
-          <code>docker push &lt;your-account-id&gt;.dkr.ecr.us-east-1.amazonaws.com/my-nextjs-app:latest</code>
-        </pre>
-        <div className="mt-4">
-          <img
-            src="/ecr_repo_with_image.png"
-            alt="ECR Repository with Image"
-            className="rounded-md border shadow-sm w-full"
-          />
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: "step-7",
-    title: "7. Create ECS Cluster",
-    content: (
-      <div className="space-y-4">
-        <p>Navigate to Elastic Container Service (ECS) in AWS Console.</p>
-        <ol className="list-decimal pl-6 space-y-2">
-          <li>Click <strong>Clusters</strong> &gt; <strong>Create Cluster</strong>.</li>
-          <li>Name your cluster (e.g., <code>my-cluster</code>).</li>
-          <li>Select <strong>AWS Fargate (serverless)</strong> infrastructure.</li>
-        </ol>
-        <div className="mt-4">
-          <img
-            src="/ecs_cluster_creation_form.png"
-            alt="ECS Cluster Creation Form"
-            className="rounded-md border shadow-sm w-full"
-          />
-        </div>
-        <ol className="list-decimal pl-6 space-y-2" start={4}>
-          <li>Click <strong>Create</strong>.</li>
-        </ol>
-        <div className="mt-4">
-          <img
-            src="/ecs_cluster_created.png"
-            alt="ECS Cluster Created"
-            className="rounded-md border shadow-sm w-full"
-          />
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: "step-8",
-    title: "8. Create Task Definition",
-    content: (
-      <div className="space-y-4">
-        <p>Define how your container should run.</p>
-        <ol className="list-decimal pl-6 space-y-2">
-          <li>Go to <strong>Task Definitions</strong> &gt; <strong>Create new Task Definition</strong>.</li>
-          <li>Name it (e.g., <code>my-task-def</code>).</li>
-          <li>Launch type: <strong>AWS Fargate</strong>.</li>
-          <li>OS Architecture: <strong>Linux/X86_64</strong>.</li>
-          <li>Task size: 0.5 vCPU, 1 GB Memory (adjust as needed).</li>
-        </ol>
-        <div className="mt-4 grid gap-4">
-          <img
-            src="/new_task_definition_form_1.png"
-            alt="Task Definition Form 1"
-            className="rounded-md border shadow-sm w-full"
-          />
-          <img
-            src="/new_task_definition_form_2.png"
-            alt="Task Definition Form 2"
-            className="rounded-md border shadow-sm w-full"
-          />
-        </div>
-        <ol className="list-decimal pl-6 space-y-2" start={6}>
-          <li>Container details:
-            <ul className="list-disc pl-6 mt-2">
-              <li>Name: <code>my-container</code></li>
-              <li>Image URI: <code>&lt;your-account-id&gt;.dkr.ecr.us-east-1.amazonaws.com/my-nextjs-app:latest</code></li>
-              <li>Container Port: <code>3000</code> (Ensure your Dockerfile exposes this port).</li>
-            </ul>
-          </li>
-        </ol>
-        <div className="mt-4">
-          <img
-            src="/ecr_image_selection_on_new_task_def.png"
-            alt="ECR Image Selection"
-            className="rounded-md border shadow-sm w-full"
-          />
-        </div>
-        <ol className="list-decimal pl-6 space-y-2" start={7}>
-          <li>Click <strong>Create</strong>.</li>
-        </ol>
-        <div className="mt-4">
-          <img
-            src="/task_definition_creation_success.png"
-            alt="Task Definition Created"
-            className="rounded-md border shadow-sm w-full"
-          />
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: "step-9",
-    title: "9. Run Service / Task",
-    content: (
-      <div className="space-y-4">
-        <p>Deploy the task to your cluster.</p>
-        <ol className="list-decimal pl-6 space-y-2">
-          <li>Go to your Cluster &gt; <strong>Services</strong> tab &gt; <strong>Create</strong>.</li>
-          <li>Compute configuration: <strong>Launch type</strong> &gt; <strong>Fargate</strong>.</li>
-          <li>Task definition: Select <code>my-task-def</code> (latest revision).</li>
-          <li>Service name: <code>my-service</code>.</li>
-          <li>Desired tasks: <code>1</code>.</li>
-        </ol>
-        <div className="mt-4 grid gap-4">
-          <img
-            src="/create_service_form_1.png"
-            alt="Service Creation Form 1"
-            className="rounded-md border shadow-sm w-full"
-          />
-          <img
-            src="/create_service_form_2_env.png"
-            alt="Service Creation Form 2"
-            className="rounded-md border shadow-sm w-full"
-          />
-        </div>
-        <ol className="list-decimal pl-6 space-y-2" start={6}>
-          <li>Networking:
-            <ul className="list-disc pl-6">
-              <li>VPC: Select your default VPC.</li>
-              <li>Subnets: Select all available.</li>
-              <li>Security Group: <strong>Create new security group</strong>.
-                <ul className="list-disc pl-6">
-                  <li>Type: Custom TCP</li>
-                  <li>Port range: <code>3000</code></li>
-                  <li>Source: <code>Anywhere (0.0.0.0/0)</code> (for testing).</li>
-                </ul>
-              </li>
-              <li><strong>Auto-assign public IP: ENABLED</strong> (Crucial for access).</li>
-            </ul>
-          </li>
-        </ol>
-        <div className="mt-4 grid gap-4">
-          <img
-            src="/create_service_form_3_deployment.png"
-            alt="Service Creation Form 3"
-            className="rounded-md border shadow-sm w-full"
-          />
-          <img
-            src="/create_service_form_4_networking.png"
-            alt="Service Creation Form 4"
-            className="rounded-md border shadow-sm w-full"
-          />
-        </div>
-        <ol className="list-decimal pl-6 space-y-2" start={7}>
-          <li>Click <strong>Create</strong>.</li>
-        </ol>
-        <div className="mt-4">
-          <img
-            src="/service_creation_success.png"
-            alt="Service Created Success"
-            className="rounded-md border shadow-sm w-full"
-          />
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: "step-10",
-    title: "10. Access Your Application",
-    content: (
-      <div className="space-y-4">
-        <p>Wait for the task status to change to <strong>RUNNING</strong>.</p>
-        <ol className="list-decimal pl-6 space-y-2">
-          <li>Click on the Task ID in the Tasks tab.</li>
-          <li>Find the <strong>Public IP</strong> address in the Network section.</li>
-          <li>Open your browser and visit: <code>http://&lt;Public-IP&gt;:3000</code>.</li>
-        </ol>
-        <div className="mt-4">
-          <img
-            src="/access_application.png"
-            alt="Application Running"
-            className="rounded-md border shadow-sm w-full"
-          />
-        </div>
-        <p className="text-green-400 font-bold mt-4">Congratulations! Your container is deployed.</p>
-      </div>
-    ),
-  },
+    id: "github-cicd",
+    title: "GitHub Actions CI/CD",
+    icon: FaGithub,
+    color: "text-white",
+    description: "Automate Pipeline",
+    items: [
+      {
+        title: "9. Configure Secrets",
+        content: (
+          <div className="space-y-6">
+            <p className="text-gray-300">Add these secrets to your GitHub Repository (Settings &gt; Secrets and variables &gt; Actions).</p>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h4 className="text-sm font-semibold text-white border-b border-white/10 pb-2">AWS Credentials</h4>
+                <div className="bg-white/5 p-4 rounded-xl border border-white/10 space-y-3">
+                  <div className="flex items-center gap-3 text-sm text-gray-300"><Key className="w-4 h-4 text-yellow-500" /> <span className="font-mono text-white">AWS_ACCESS_KEY_ID</span></div>
+                  <div className="flex items-center gap-3 text-sm text-gray-300"><Lock className="w-4 h-4 text-yellow-500" /> <span className="font-mono text-white">AWS_SECRET_ACCESS_KEY</span></div>
+                  <div className="flex items-center gap-3 text-sm text-gray-300"><Globe className="w-4 h-4 text-blue-500" /> <span className="font-mono text-white">AWS_REGION</span></div>
+                </div>
+
+                <h4 className="text-sm font-semibold text-white border-b border-white/10 pb-2 pt-2">ECS Configuration</h4>
+                <div className="bg-white/5 p-4 rounded-xl border border-white/10 space-y-3">
+                  <div className="flex items-center gap-3 text-sm text-gray-300"><Box className="w-4 h-4 text-purple-500" /> <span className="font-mono text-white">ECR_REPOSITORY</span></div>
+                  <div className="flex items-center gap-3 text-sm text-gray-300"><Server className="w-4 h-4 text-orange-500" /> <span className="font-mono text-white">ECS_CLUSTER</span></div>
+                  <div className="flex items-center gap-3 text-sm text-gray-300"><Server className="w-4 h-4 text-orange-500" /> <span className="font-mono text-white">ECS_SERVICE</span></div>
+                  <div className="flex items-center gap-3 text-sm text-gray-300"><Box className="w-4 h-4 text-purple-500" /> <span className="font-mono text-white">ECS_TASK_DEFINITION</span></div>
+                  <div className="flex items-center gap-3 text-sm text-gray-300"><Box className="w-4 h-4 text-purple-500" /> <span className="font-mono text-white">CONTAINER_NAME</span></div>
+                </div>
+              </div>
+
+              <div className="relative group cursor-pointer w-full overflow-hidden rounded-xl border border-white/10 h-fit">
+                <img src="/github_secrets.png" alt="GitHub Secrets" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+                  <span className="text-white font-semibold border border-white/30 px-4 py-2 rounded-full backdrop-blur-md">View Secrets</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      },
+      {
+        title: "10. Workflow Visualization",
+        content: (
+          <div className="space-y-6">
+            <p className="text-gray-300">Visualize your Build and Deploy stages in GitHub Actions.</p>
+            <div className="relative group cursor-pointer overflow-hidden rounded-xl border border-white/10 shadow-2xl">
+              <img src="/github_workflow.png" alt="GitHub Workflow" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+                <span className="text-white font-semibold border border-white/30 px-4 py-2 rounded-full backdrop-blur-md">View Workflow</span>
+              </div>
+            </div>
+          </div>
+        )
+      }
+    ]
+  }
 ];
 
 export default function DeploymentSteps() {
+  const [activeTab, setActiveTab] = useState("aws-setup");
+  const [modalImage, setModalImage] = useState<{ src: string, alt: string } | null>(null);
+
+  const activeSection = steps.find(s => s.id === activeTab);
+
   return (
-    <Card className="w-full max-w-4xl mx-auto border-none bg-transparent shadow-none">
-      <CardHeader>
-        <CardTitle className="text-3xl font-bold text-center mb-6">Deployment Workflow</CardTitle>
-        <CardDescription className="text-center text-lg">
-          Follow these steps to deploy your containerized application on AWS ECS Fargate.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ScrollArea className="h-[600px] pr-4">
-          <Accordion type="single" collapsible className="w-full">
-            {steps.map((step, index) => (
-              <motion.div
-                key={step.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+    <div className="w-full max-w-7xl mx-auto p-2 md:p-8">
+      <div className="flex flex-col lg:flex-row gap-4 md:gap-8">
+
+        {/* Sidebar Navigation */}
+        <div className="lg:w-1/3">
+          <div className="grid grid-cols-4 lg:flex lg:flex-col gap-2 pb-4 lg:pb-0 sticky top-0 lg:top-8 z-20 bg-[#0A0A0A]/95 backdrop-blur-md lg:bg-transparent p-2 lg:p-0 border-b border-white/10 lg:border-none">
+            {steps.map((section) => (
+              <button
+                key={section.id}
+                onClick={() => setActiveTab(section.id)}
+                className={cn(
+                  "flex flex-col lg:flex-row items-center justify-center lg:justify-start gap-2 lg:gap-3 p-2 lg:p-3 rounded-xl border transition-all duration-300 group relative overflow-hidden h-full",
+                  activeTab === section.id
+                    ? "bg-white/10 border-white/20 shadow-[0_0_20px_rgba(255,255,255,0.05)]"
+                    : "bg-transparent lg:bg-black/20 border-transparent lg:border-white/5 hover:bg-white/5 hover:border-white/10"
+                )}
               >
-                <AccordionItem value={step.id}>
-                  <AccordionTrigger className="text-xl font-semibold hover:text-primary transition-colors">
-                    {step.title}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-base text-muted-foreground">
-                    {step.content}
-                  </AccordionContent>
-                </AccordionItem>
-              </motion.div>
+                <div className={cn(
+                  "p-1.5 lg:p-2 rounded-lg transition-colors",
+                  activeTab === section.id ? "bg-white/10" : "bg-white/5 lg:bg-black/40"
+                )}>
+                  <section.icon className={cn("w-4 h-4 lg:w-6 lg:h-6", section.color)} />
+                </div>
+
+                <div className="hidden md:block text-left">
+                  <h3 className={cn(
+                    "font-bold transition-colors text-sm md:text-base",
+                    activeTab === section.id ? "text-white" : "text-gray-400 group-hover:text-gray-200"
+                  )}>
+                    {section.title}
+                  </h3>
+                  <p className="text-xs text-gray-500 hidden lg:block">{section.description}</p>
+                </div>
+
+                {/* Mobile Title - Very Short */}
+                <span className={cn(
+                  "md:hidden text-[10px] font-medium truncate w-full text-center",
+                  activeTab === section.id ? "text-white" : "text-gray-400"
+                )}>
+                  {section.id === 'github-cicd' ? 'GitHub' : section.title.split(" ")[0]}
+                </span>
+
+                {activeTab === section.id && (
+                  <motion.div
+                    layoutId="active-pill"
+                    className="absolute inset-0 border-2 border-blue-500/50 rounded-xl lg:hidden"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
+
+                {activeTab === section.id && (
+                  <motion.div
+                    layoutId="active-pill-desktop"
+                    className="absolute right-4 w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)] hidden lg:block"
+                  />
+                )}
+              </button>
             ))}
-          </Accordion>
-        </ScrollArea>
-      </CardContent>
-    </Card>
+          </div>
+        </div>
+
+        {/* Content Area */}
+        <div className="lg:w-2/3">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+              className="bg-gradient-to-br from-white/5 to-white/0 border border-white/10 rounded-2xl p-4 md:p-8 backdrop-blur-sm min-h-[400px] md:min-h-[600px]"
+            >
+              <div className="mb-6 md:mb-8 pb-6 md:pb-8 border-b border-white/10">
+                <h2 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
+                  {activeSection?.icon && <activeSection.icon className={cn("w-6 h-6 md:w-8 md:h-8", activeSection.color)} />}
+                  {activeSection?.title}
+                </h2>
+                <p className="text-gray-400 mt-2 text-sm md:text-lg">{activeSection?.description}</p>
+              </div>
+
+              <div className="space-y-8 md:space-y-12">
+                {activeSection?.items.map((item, idx) => (
+                  <div key={idx} className="space-y-4">
+                    <h3 className="text-lg md:text-xl font-semibold text-blue-300 flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5 text-blue-500" />
+                      {item.title}
+                    </h3>
+                    <div
+                      className="pl-0 md:pl-7 text-gray-300 text-sm md:text-base"
+                      onClick={(e) => {
+                        const group = (e.target as HTMLElement).closest('.group');
+                        if (group) {
+                          const img = group.querySelector('img');
+                          if (img) {
+                            setModalImage({ src: img.src, alt: img.alt });
+                          }
+                        }
+                      }}
+                    >
+                      {item.content}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+      </div>
+
+      <ImageModal
+        isOpen={!!modalImage}
+        onClose={() => setModalImage(null)}
+        imageSrc={modalImage?.src || ""}
+        altText={modalImage?.alt || ""}
+      />
+    </div>
   );
 }

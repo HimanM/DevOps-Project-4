@@ -7,17 +7,17 @@ const projects = [
   {
     name: "DevOps Project 1",
     url: "https://devops1.himanmanduja.fun",
-    description: "Introduction to DevOps principles and basic CI/CD.",
+    description: "Production-grade demonstration of containerized microservices, Infrastructure as Code, and automated CI/CD pipelines.",
   },
   {
     name: "DevOps Project 2",
     url: "https://devops2.himanmanduja.fun",
-    description: "Advanced containerization and orchestration.",
+    description: "A comprehensive demonstration of modern DevOps practices, featuring chained pipelines, infrastructure automation with Ansible, and containerized deployments.",
   },
   {
     name: "DevOps Project 3",
     url: "https://devops3.himanmanduja.fun",
-    description: "Infrastructure as Code with Terraform.",
+    description: "A complete guide to deploying full-stack applications on Kubernetes using Jenkins CI and ArgoCD GitOps. Automated, secure, and scalable.",
   },
 ];
 
