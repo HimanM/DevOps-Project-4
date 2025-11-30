@@ -46,9 +46,10 @@ jobs:
           # Build a docker container and
           # push it to ECR so that it can
           # be deployed to ECS.
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./aws-deploy-guide
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          IMAGE_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker build -t $IMAGE_URI ./aws-deploy-guide
+          docker push $IMAGE_URI
+          echo "image=$IMAGE_URI" >> $GITHUB_OUTPUT
 
   deploy:
     name: Deploy to ECS
@@ -56,6 +57,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Debug Output
+        run: echo "Image Input from Build Job: ${{ needs.build.outputs.image }}"
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
