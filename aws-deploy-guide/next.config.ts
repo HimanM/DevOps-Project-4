@@ -1,9 +1,11 @@
 import type { NextConfig } from "next";
 
+const isGitHubPages = process.env.GITHUB_ACTIONS && process.env.DEPLOY_AWS !== 'true';
+
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
-  output: process.env.GITHUB_ACTIONS ? 'export' : 'standalone',
+  output: isGitHubPages ? 'export' : 'standalone',
   images: {
     unoptimized: true,
   },

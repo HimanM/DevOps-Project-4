@@ -61,6 +61,7 @@ jobs:
         run: npm run build
         env:
           NEXT_PUBLIC_BASE_PATH: ''
+          DEPLOY_AWS: 'false'
 
       - name: Add .nojekyll file
         if: steps.check-deploy.outputs.deploy_to_aws == 'false'
