@@ -19,6 +19,28 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## CI/CD Pipeline (GitHub Actions)
+
+This project includes a GitHub Actions workflow (`.github/workflows/deploy.yml`) that automatically builds and deploys the application to AWS ECS whenever changes are pushed to the `main` branch.
+
+### Prerequisites for CI/CD
+You must configure the following **Secrets** in your GitHub Repository (Settings > Secrets and variables > Actions):
+
+| Secret Name | Description | Example Value |
+| :--- | :--- | :--- |
+| `AWS_ACCESS_KEY_ID` | Your AWS Access Key ID | `AKIA...` |
+| `AWS_SECRET_ACCESS_KEY` | Your AWS Secret Access Key | `wJalr...` |
+| `AWS_REGION` | AWS Region | `us-west-2` |
+| `ECR_REPOSITORY` | Name of your ECR Repository | `aws-deploy-guide` |
+| `ECS_CLUSTER` | Name of your ECS Cluster | `aws-deploy-guide-cluster` |
+| `ECS_SERVICE` | Name of your ECS Service | `aws-deploy-guide-task-service` |
+| `ECS_TASK_DEFINITION` | Name of your Task Definition Family | `aws-deploy-guide-task` |
+| `CONTAINER_NAME` | Name of the container in Task Def | `aws-deploy-guide-container` |
+
+### Workflow Stages
+1.  **Build and Push:** Builds the Docker image and pushes it to Amazon ECR.
+2.  **Deploy to ECS:** Updates the ECS Task Definition with the new image and deploys it to the ECS Service.
+
 ## Docker Deployment
 
 This project includes a `Dockerfile` to containerize the application.
