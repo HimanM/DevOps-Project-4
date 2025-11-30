@@ -137,7 +137,7 @@ Securely storing AWS credentials and configuration variables in GitHub.
 **Workflow Visualization**
 The GitHub Actions interface showing the progress of the build and deploy jobs.
 ![GitHub Workflow](docs/github_workflow.png)
-
+ 
 ### Required Secrets
 
 To enable the CI/CD pipeline, the following secrets must be configured in the GitHub Repository:
